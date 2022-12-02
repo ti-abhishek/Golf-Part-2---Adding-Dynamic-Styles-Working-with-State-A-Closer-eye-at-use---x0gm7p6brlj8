@@ -1,76 +1,121 @@
-import React, { Component, useState, useEffect } from "react";
-import "./App.css";
+import React, { Component } from 'react';
+import '../styles/App.css';
 
-const App = () => {
-  const [renderBall, setRenderBall] = useState(false);
-  const [x, setX] = useState(0);
-  const [y, setY] = useState(0);
-  const [ballPosition, setBallPosition] = useState({
-    left: "0px",
-    top: "0px"
-  });
-  const reset = () => {
-    setRenderBall(false);
-    setX(0);
-    setY(0);
-    setBallPosition({
-      left:'0px',
-      top:'0px',
-    });
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      time: 0,
+      x: 0,
+      y: 0
+    }
   }
 
-  const start = () => {
-    setRenderBall(true);
-};
+  componentDidUpdate() {
 
-  const renderChoice = () => {
-	return renderBall?(<div className='ball' style={{
-	position: 'absolute',
-	left: ballPosition.left,
-	top: ballPosition.top
-	}}></div>):(
-	<button onClick={start} className='start'>Start</button>
-	);
-  };
+    if (this.state.x == 250 && this.state.y == 250) {
 
-  const updateXY=(newX, newY)=>{
-	setX(newX);
-	setY(newY);
-	setBallPosition({
-	left:newX+'px',
-	top:newY+'px',
-	});
+      document.removeEventListener("keydown", this.moveBall);
+      clearInterval(this.intervalID);
+
+      console.log("ball reached the destination");
+    }
+
   }
 
-  useEffect(()=>{
-	const keyListener=(evt)=>{
-		console.log("Listened to key");
-		if(renderBall){
-		if(evt.keyCode===37){
-			updateXY(x-5, y);
-		}else if(evt.keyCode===38){
-			updateXY(x, y-5);
-		}else if(evt.keyCode===39){
-                        updateXY(x+5, y);
-                }else if(evt.keyCode===40){
-                        updateXY(x, y+5);
-                }
-		setBallPosition({
-			left:x+'px',
-			top:y+'px',
-		})
-		}
-	};
-	document.addEventListener('keydown', keyListener)
-	return ()=>document.removeEventListener('keydown', keyListener);
-});
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.moveBall);
+  }
 
-  return (
-    <div className="playground">
-      <button onClick={reset} className="reset">
-        Reset
-      </button>
-      {renderChoice()}
-    </div>
-  );
-};
+
+  buttonClickHandler = () => {
+
+    if (this.state.time == 0) {
+
+      document.addEventListener("keydown", this.moveBall);
+
+      console.log("eventListener added");
+
+      this.intervalID = setInterval(() => {
+        this.setState({
+          time: this.state.time + 1
+        });
+      }, 1000)
+
+
+    }
+
+  }
+
+
+  moveBall = (event) => {
+
+    switch (event.key) {
+      case "ArrowRight"://right
+        this.setState({
+          x: this.state.x + 5,
+          y: this.state.y
+        }
+        );
+
+
+        break;
+
+      case "ArrowDown"://down
+        this.setState({
+          x: this.state.x,
+          y: this.state.y + 5
+        }
+        );
+
+        break;
+
+      case "ArrowLeft"://left
+        this.setState({
+          x: this.state.x - 5,
+          y: this.state.y
+        }
+        );
+
+        break;
+
+      case "ArrowUp"://up
+        this.setState({
+          x: this.state.x,
+          y: this.state.y - 5
+        }
+        );
+
+        break;
+
+      default:
+        this.setState({
+          x: this.state.x,
+          y: this.state.y
+        })
+
+    }
+
+  }
+
+  render() {
+
+    return (
+      <div className="playground">
+        <div
+          className="ball"
+          style={{
+            position: "absolute",
+            left: this.state.x + "px",
+            top: this.state.y + "px",
+          }}
+        ></div>
+        <div className="hole"></div>
+        <div className="heading-timer">{this.state.time}</div>
+        <button className="start" onClick={this.buttonClickHandler} >Start</button>
+      </div>
+    );
+  }
+}
+
+export default App;
