@@ -1,5 +1,5 @@
-import React, { Component, useState, useEffect } from "react";
-import "./App.css";
+import React, { Component, useEffect, useState } from "react";
+import "../styles/App.css";
 
 const App = () => {
   const [renderBall, setRenderBall] = useState(false);
@@ -7,63 +7,79 @@ const App = () => {
   const [y, setY] = useState(0);
   const [ballPosition, setBallPosition] = useState({
     left: "0px",
-    top: "0px"
+    top: "0px",
   });
-  const reset = () => {
-    setRenderBall(false);
-    setX(0);
-    setY(0);
-    setBallPosition({
-      left:'0px',
-      top:'0px',
-    });
-  }
 
-  const start = () => {
+  const setBall = () => {
     setRenderBall(true);
-};
-
-  const renderChoice = () => {
-	return renderBall?(<div className='ball' style={{
-	position: 'absolute',
-	left: ballPosition.left,
-	top: ballPosition.top
-	}}></div>):(
-	<button onClick={start} className='start'>Start</button>
-	);
+  };
+  useEffect(() => {
+    setBallPosition({ left: x, top: y });
+  }, [x, y]);
+  const handleEvent = (event) => {
+    switch (event.keyCode) {
+      case 37:
+        setX((x) => x - 5);
+        console.log(x, y);
+        console.log(ballPosition);
+        break;
+      case 38:
+        setY((y) => y - 5);
+        console.log(x, y);
+        console.log(ballPosition);
+        break;
+      case 39:
+        setX((x) => x + 5);
+        console.log(x, y);
+        console.log(ballPosition);
+        break;
+      case 40:
+        setY((y) => y + 5);
+        console.log(x, y);
+        console.log(ballPosition);
+        break;
+      default:
+        break;
+    }
   };
 
-  const updateXY=(newX, newY)=>{
-	setX(newX);
-	setY(newY);
-	setBallPosition({
-	left:newX+'px',
-	top:newY+'px',
-	});
-  }
+  useEffect(() => {
+    document.addEventListener("keydown", handleEvent);
+  }, []);
+  const reset = () => {
+    setX((x) => 0);
+    setY((y) => 0);
+    setRenderBall(false);
+  };
 
-  useEffect(()=>{
-	const keyListener=(evt)=>{
-		console.log("Listened to key");
-		if(renderBall){
-		if(evt.keyCode===37){
-			updateXY(x-5, y);
-		}else if(evt.keyCode===38){
-			updateXY(x, y-5);
-		}else if(evt.keyCode===39){
-                        updateXY(x+5, y);
-                }else if(evt.keyCode===40){
-                        updateXY(x, y+5);
-                }
-		setBallPosition({
-			left:x+'px',
-			top:y+'px',
-		})
-		}
-	};
-	document.addEventListener('keydown', keyListener)
-	return ()=>document.removeEventListener('keydown', keyListener);
-});
+  const renderChoice = () => {
+    if (renderBall) {
+      return (
+        <div
+          className="ball"
+          style={{
+            left: ballPosition.left + "px",
+            top: ballPosition.top + "px",
+            position: "absolute",
+          }}
+        />
+      );
+    }
+
+    return (
+      <button
+        className="start"
+        style={{
+          bottom: "50px",
+          left: "450px",
+          position: "absolute",
+        }}
+        onClick={setBall}
+      >
+        Start
+      </button>
+    );
+  };
 
   return (
     <div className="playground">
@@ -73,4 +89,6 @@ const App = () => {
       {renderChoice()}
     </div>
   );
-}
+};
+
+export default App;
